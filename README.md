@@ -5,12 +5,14 @@ A comprehensive guide and tutorial on using TensorRT for accelerating a simple M
 ## Overview of Using TensorRT
 
 1. **Define Your Model**: Start by defining and training your model in PyTorch.
-      - See [Pytorch model](#Pytorch-model)
+      - [Pytorch model](#Pytorch-model)
 3. **Convert to ONNX**: Convert your PyTorch model to the ONNX format. This step is necessary for both static and dynamic shape configurations.
-4. **Build TensorRT Engine**:
+      - [Convert to ONNX](#Convert-pytorch-model-to-ONNX)
+5. **Build TensorRT Engine**:
    - **Static Shapes**: Build an engine with predefined input and output shapes for maximum optimization.
    - **Dynamic Shapes**: Build an engine with profile settings that support varying input and output shapes, allowing flexibility for different scenarios.
-5. **Inference from engine**:
+   - [Build engine](#Building-Engine)
+6. **Inference from engine**:
    - **Create Execution Context**: Generate a context from the TensorRT engine to manage inference execution.
    - **Allocate Memory Buffers**:
      - Allocate memory for inputs and outputs in both host and device memory based on the shapes.
@@ -19,6 +21,7 @@ A comprehensive guide and tutorial on using TensorRT for accelerating a simple M
      - Execute inference using the TensorRT context.
      - Transfer the output data from the device back to the host memory.
    - **Post-Processing**: Reshape the 1D output array to the desired dimensions for further use.
+   - [Inference](#Inference)
 
 By following these steps, you can leverage TensorRT to significantly improve the performance of your neural network models on NVIDIA GPUs.
 
