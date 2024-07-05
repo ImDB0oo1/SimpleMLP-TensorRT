@@ -2,6 +2,8 @@
 
 A comprehensive guide and tutorial on using TensorRT for accelerating a simple Multi-Layer Perceptron (MLP). This repository includes step-by-step instructions, code examples, and explanations to help you get started with TensorRT for nueral network models.
 
+**TensorRT Version**: Ensure you have TensorRT version 8.6 or later installed.
+
 ## Overview of Using TensorRT
 
 1. **Define Your Model**: Start by defining and training your model in PyTorch.
