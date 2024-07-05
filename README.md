@@ -5,7 +5,7 @@ A comprehensive guide and tutorial on using TensorRT for accelerating a simple M
 ## Overview of Using TensorRT
 
 1. **Define Your Model**: Start by defining and training your model in PyTorch.
-      - See [Pytorch model](## Pytorch model)
+      - See [Pytorch model](##Pytorch-model)
 3. **Convert to ONNX**: Convert your PyTorch model to the ONNX format. This step is necessary for both static and dynamic shape configurations.
 4. **Build TensorRT Engine**:
    - **Static Shapes**: Build an engine with predefined input and output shapes for maximum optimization.
