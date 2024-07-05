@@ -21,11 +21,6 @@ A comprehensive guide and tutorial on using TensorRT for accelerating a simple M
 
 By following these steps, you can leverage TensorRT to significantly improve the performance of your neural network models on NVIDIA GPUs.
 
-## Pytorch model
-
-First we define a simple Multi-Layer Perceptron (MLP) model using PyTorch. This model will be used as the basis for our TensorRT conversion and inference examples.
-We need to train our model and save the weights,here we save them as (.pth) file.
-
 ## Static vs Dynamic Shapes in TensorRT
 
 In TensorRT, the term "shapes" refers to the dimensions of the input and output tensors that a neural network processes.
@@ -69,6 +64,11 @@ The choice between static and dynamic shapes depends on the specific requirement
 - Use **dynamic shapes** if your application needs to handle inputs of varying sizes and you require flexibility and scalability.
 
 In the following sections, we will provide examples of how to implement both static and dynamic shapes using TensorRT for a simple MLP model.
+
+## Pytorch model
+
+First we define a simple Multi-Layer Perceptron (MLP) model using PyTorch. This model will be used as the basis for our TensorRT conversion and inference examples.
+We need to train our model and save the weights,here we save them as (.pth) file.
 
 ## Convert pytorch model to ONNX
 
