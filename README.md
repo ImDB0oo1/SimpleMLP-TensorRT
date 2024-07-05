@@ -2,6 +2,25 @@
 
 A comprehensive guide and tutorial on using TensorRT for accelerating a simple Multi-Layer Perceptron (MLP). This repository includes step-by-step instructions, code examples, and explanations to help you get started with TensorRT for nueral network models.
 
+## Overview of Using TensorRT
+
+1. **Define Your Model**: Start by defining and training your model in PyTorch.
+2. **Convert to ONNX**: Convert your PyTorch model to the ONNX format. This step is necessary for both static and dynamic shape configurations.
+3. **Build TensorRT Engine**:
+   - **Static Shapes**: Build an engine with predefined input and output shapes for maximum optimization.
+   - **Dynamic Shapes**: Build an engine with profile settings that support varying input and output shapes, allowing flexibility for different scenarios.
+4. **Inference from engine**:
+   - **Create Execution Context**: Generate a context from the TensorRT engine to manage inference execution.
+   - **Allocate Memory Buffers**:
+     - Allocate memory for inputs and outputs in both host and device memory based on the shapes.
+   - **Transfer Data and Run Inference**:
+     - Transfer input data from the host to the device memory.
+     - Execute inference using the TensorRT context.
+     - Transfer the output data from the device back to the host memory.
+   - **Post-Processing**: Reshape the 1D output array to the desired dimensions for further use.
+
+By following these steps, you can leverage TensorRT to significantly improve the performance of your neural network models on NVIDIA GPUs.
+
 ## Pytorch model
 
 First we define a simple Multi-Layer Perceptron (MLP) model using PyTorch. This model will be used as the basis for our TensorRT conversion and inference examples.
