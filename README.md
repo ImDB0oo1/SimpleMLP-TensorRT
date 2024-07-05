@@ -66,7 +66,8 @@ After converting your PyTorch model to the ONNX format, the next step is to buil
 1. **Load the ONNX Model**: Read the ONNX file into memory.
 2. **Create TensorRT Builder and Network**: Initialize the TensorRT builder and network.
 3. **Parse the ONNX Model**: Parse the ONNX model to populate the TensorRT network.
-4. **Build the Engine**: Configure the builder settings and build the engine.For dynamic shapes, we need to set an optimization profile that includes minimum, optimal, and maximum shape values for the dynamic dimensions. During inference, the input shapes must not exceed the maximum or fall below the minimum values specified. The closer the input shapes are to the optimal values, the more performance benefits we can achieve with TensorRT.
+4. **Build the Engine**: Configure the builder settings and build the engine.
+For dynamic shapes, we need to set an optimization profile that includes minimum, optimal, and maximum shape values for the dynamic dimensions. During inference, the input shapes must not exceed the maximum or fall below the minimum values specified. The closer the input shapes are to the optimal values, the more performance benefits we can achieve with TensorRT.
 
 ## Inference
 
