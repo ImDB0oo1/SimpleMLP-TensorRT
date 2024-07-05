@@ -5,11 +5,12 @@ A comprehensive guide and tutorial on using TensorRT for accelerating a simple M
 ## Overview of Using TensorRT
 
 1. **Define Your Model**: Start by defining and training your model in PyTorch.
-2. **Convert to ONNX**: Convert your PyTorch model to the ONNX format. This step is necessary for both static and dynamic shape configurations.
-3. **Build TensorRT Engine**:
+      - See [Pytorch model](#Pytorch model)
+3. **Convert to ONNX**: Convert your PyTorch model to the ONNX format. This step is necessary for both static and dynamic shape configurations.
+4. **Build TensorRT Engine**:
    - **Static Shapes**: Build an engine with predefined input and output shapes for maximum optimization.
    - **Dynamic Shapes**: Build an engine with profile settings that support varying input and output shapes, allowing flexibility for different scenarios.
-4. **Inference from engine**:
+5. **Inference from engine**:
    - **Create Execution Context**: Generate a context from the TensorRT engine to manage inference execution.
    - **Allocate Memory Buffers**:
      - Allocate memory for inputs and outputs in both host and device memory based on the shapes.
