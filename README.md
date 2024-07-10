@@ -144,6 +144,45 @@ Regardless of whether you are working with static or dynamic shapes, the process
 2. **Create Dummy Input**: Prepare a dummy input tensor with the appropriate shape. For dynamic shapes, specify the axes that can vary.
 3. **Export to ONNX**: Use the `torch.onnx.export` function to convert the model.
 
+```python
+import mlp
+import torch
+
+
+# Convert the model to ONNX format
+# Dummy input for the model (replace with an actual sample if needed)
+
+# Parameters
+input_size = 784  # Example for MNIST dataset (28x28 images)
+hidden_size = 32
+num_classes = 10
+batch_size = 10
+
+
+dummy_input = torch.randn(1, input_size)
+onnx_file_path = "simple_mlp_dynamic.onnx"
+
+
+model = mlp.SimpleMLP(input_size, hidden_size, num_classes)
+# Load the model's weights (using the final epoch as an example)
+model.load_state_dict(torch.load('simple_mlp.pth'))
+model.eval()  # Set the model to evaluation mode
+
+# Export the model
+torch.onnx.export(
+    model,
+    dummy_input,
+    onnx_file_path,
+    input_names=['input'],
+    output_names=['output'],
+    dynamic_axes={'input' : {0: 'input_batch_size'}, # For static shapes we dont need dynamic axes
+                  'output': {0: 'output_batch_size'}},
+    opset_version=11
+)
+
+print(f'Model has been converted to ONNX and saved to {onnx_file_path}')
+```
+
 ## Building Engine
 
 After converting your PyTorch model to the ONNX format, the next step is to build a TensorRT engine. The engine is a highly optimized, platform-specific model that can run inference efficiently on NVIDIA GPUs.
