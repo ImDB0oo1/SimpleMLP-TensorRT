@@ -266,7 +266,172 @@ These steps ensure that the data flows correctly through the TensorRT engine for
 ### Static shapes
 
 For static shapes, the input and output shapes are predefined and can be obtained from `engine.binding`. We simply need to allocate memory buffers based on these sizes.
+```python
+import numpy as np
+import tensorrt as trt
+from cuda import cuda, cudart
+import ctypes
+from typing import Optional, List
 
+### Cudart keypoint handler
+def check_cuda_err(err):
+    if isinstance(err, cuda.CUresult):
+        if err != cuda.CUresult.CUDA_SUCCESS:
+            raise RuntimeError("Cuda Error: {}".format(err))
+    if isinstance(err, cudart.cudaError_t):
+        if err != cudart.cudaError_t.cudaSuccess:
+            raise RuntimeError("Cuda Runtime Error: {}".format(err))
+    else:
+        raise RuntimeError("Unknown error type: {}".format(err))
+
+def cuda_call(call):
+    err, res = call[0], call[1:]
+    check_cuda_err(err)
+    if len(res) == 1:
+        res = res[0]
+    return res
+
+
+### Class for transfer data between host and device memory 
+class HostDeviceMem:
+    """Pair of host and device memory, where the host memory is wrapped in a numpy array"""
+    def __init__(self, size: int, dtype: np.dtype):
+        nbytes = size * dtype.itemsize
+        host_mem = cuda_call(cudart.cudaMallocHost(nbytes))
+        pointer_type = ctypes.POINTER(np.ctypeslib.as_ctypes_type(dtype))
+
+        self._host = np.ctypeslib.as_array(ctypes.cast(host_mem, pointer_type), (size,))
+        self._device = cuda_call(cudart.cudaMalloc(nbytes))
+        self._nbytes = nbytes
+
+    @property
+    def host(self) -> np.ndarray:
+        return self._host
+
+    @host.setter
+    def host(self, arr: np.ndarray):
+        if arr.size > self.host.size:
+            raise ValueError(
+                f"Tried to fit an array of size {arr.size} into host memory of size {self.host.size}"
+            )
+        #np.copyto(self.host[:arr.size], arr.flat, casting='safe')
+        np.copyto(self.host[:arr.size], arr.flat)
+
+    @property
+    def device(self) -> int:
+        return self._device
+
+    @property
+    def nbytes(self) -> int:
+        return self._nbytes
+
+    def __str__(self):
+        return f"Host:\n{self.host}\nDevice:\n{self.device}\nSize:\n{self.nbytes}\n"
+
+    def __repr__(self):
+        return self.__str__()
+
+    def free(self):
+        cuda_call(cudart.cudaFree(self.device))
+        cuda_call(cudart.cudaFreeHost(self.host.ctypes.data))
+
+
+# Allocates all buffers required for an engine, i.e. host/device inputs/outputs.
+def allocate_buffers(engine: trt.ICudaEngine):
+    inputs = []
+    outputs = []
+    bindings = []
+    stream = cuda_call(cudart.cudaStreamCreate())
+    for binding in engine:
+        size = trt.volume(engine.get_binding_shape(binding)) * engine.max_batch_size
+        dtype = trt.nptype(engine.get_binding_dtype(binding))
+
+        # Allocate host and device buffers
+        bindingMemory = HostDeviceMem(size, dtype)
+
+        # Append the device buffer to device bindings.
+        bindings.append(int(bindingMemory.device))
+
+        # Append to the appropriate list.
+        if engine.get_tensor_mode(binding) == trt.TensorIOMode.INPUT:
+            inputs.append(bindingMemory)
+        else:
+            outputs.append(bindingMemory)
+
+
+    return inputs, outputs, bindings, stream
+
+
+# Frees the resources allocated in allocate_buffers
+def free_buffers(inputs: List[HostDeviceMem], outputs: List[HostDeviceMem], stream: cudart.cudaStream_t):
+    for mem in inputs + outputs:
+        mem.free()
+    cuda_call(cudart.cudaStreamDestroy(stream))
+
+
+# Wrapper for cudaMemcpy which infers copy size and does error checking
+def memcpy_host_to_device(device_ptr: int, host_arr: np.ndarray):
+    nbytes = host_arr.size * host_arr.itemsize
+    cuda_call(cudart.cudaMemcpy(device_ptr, host_arr, nbytes, cudart.cudaMemcpyKind.cudaMemcpyHostToDevice))
+
+
+# Wrapper for cudaMemcpy which infers copy size and does error checking
+def memcpy_device_to_host(host_arr: np.ndarray, device_ptr: int):
+    nbytes = host_arr.size * host_arr.itemsize
+    cuda_call(cudart.cudaMemcpy(host_arr, device_ptr, nbytes, cudart.cudaMemcpyKind.cudaMemcpyDeviceToHost))
+
+
+def _do_inference_base(inputs, outputs, stream, execute_async):
+    # Transfer input data to the GPU.
+    kind = cudart.cudaMemcpyKind.cudaMemcpyHostToDevice
+    [cuda_call(cudart.cudaMemcpyAsync(inp.device, inp.host, inp.nbytes, kind, stream)) for inp in inputs]
+    # Run inference.
+    execute_async()
+    # Transfer predictions back from the GPU.
+    kind = cudart.cudaMemcpyKind.cudaMemcpyDeviceToHost
+    [cuda_call(cudart.cudaMemcpyAsync(out.host, out.device, out.nbytes, kind, stream)) for out in outputs]
+    # Synchronize the stream
+    cuda_call(cudart.cudaStreamSynchronize(stream))
+    # Return only the host outputs.
+    return [out.host for out in outputs]
+
+
+# This function is generalized for multiple inputs/outputs for full dimension networks.
+# inputs and outputs are expected to be lists of HostDeviceMem objects.
+def do_inference(context, bindings, inputs, outputs, stream):
+    def execute_async():
+        context.execute_async(bindings=bindings, stream_handle=stream)
+    return _do_inference_base(inputs, outputs, stream, execute_async)
+
+# Main function
+def main():
+    engine_file_path = 'simple_mlp_dynamic.engine'
+    engine = load_engine(engine_file_path)
+
+    # Create execution context
+    context = engine.create_execution_context()
+
+
+    # Allocate buffers
+    inputs, outputs, binding, stream = allocate_buffers(engine)
+
+    # Dummy input data
+    input_data = np.random.randn(1, 784).astype(np.float32)
+
+    # Transfer input data to host memory
+    np.copyto(inputs[0].host, input_data.ravel())
+
+    # Run inference
+    output_data = do_inference(context, bindings, inputs, outputs, stream)
+    print("Inference output:", output_data)
+
+    # Free allocated memory
+    free_buffers(inputs, outputs, stream)
+
+
+if __name__ == '__main__':
+    main()
+```
 ### Dynamic shapes
 
 For dynamic shapes, we need to set the engine bindings based on the input shapes at inference time. Then, we allocate memory buffers accordingly based on these input shapes.
