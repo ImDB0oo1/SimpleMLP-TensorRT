@@ -72,7 +72,7 @@ In the following sections, we will provide examples of how to implement both sta
 First we define a simple Multi-Layer Perceptron (MLP) model using PyTorch. This model will be used as the basis for our TensorRT conversion and inference examples.
 We need to train our model and save the weights,here we save them as (.pth) file.
 
-'''python
+```python
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -130,7 +130,7 @@ for epoch in range(num_epochs):
 torch.save(model.state_dict(), 'simple_mlp.pth')
 
 print('Model training complete and saved to simple_mlp.pth')
-'''
+```
 
 ## Convert pytorch model to ONNX
 
