@@ -99,7 +99,7 @@ num_epochs = 10
 batch_size = 1
 learning_rate = 0.001
 
-# Dummy dataset (replace with actual data)
+# Dummy dataset 
 x_train = torch.randn(600, input_size)
 y_train = torch.randint(0, num_classes, (600,))
 
@@ -150,7 +150,7 @@ import torch
 
 
 # Convert the model to ONNX format
-# Dummy input for the model (replace with an actual sample if needed)
+# Dummy input for the model
 
 # Parameters
 input_size = 784  # Example for MNIST dataset (28x28 images)
