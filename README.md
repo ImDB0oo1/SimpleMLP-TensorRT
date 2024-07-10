@@ -227,7 +227,8 @@ with open(path_onnx_model, "rb") as f:
         for error in range(parser.num_errors):
             print(parser.get_error(error))
 
-# Network has every inputs and its better to work with their names,since we only have 1 input we do this
+# Network has every inputs and its better to work with their names
+# Since we only have 1 input we do this
 input = network.get_input(0)
 
 # Set profile for dynamic shapes(we dont need this step for static ones)
