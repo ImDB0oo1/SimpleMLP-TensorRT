@@ -403,34 +403,28 @@ def do_inference(context, bindings, inputs, outputs, stream):
         context.execute_async(bindings=bindings, stream_handle=stream)
     return _do_inference_base(inputs, outputs, stream, execute_async)
 
-# Main function
-def main():
-    engine_file_path = 'simple_mlp_dynamic.engine'
-    engine = load_engine(engine_file_path)
+### Inference from tensorRT
+engine_file_path = 'simple_mlp_dynamic.engine'
+engine = load_engine(engine_file_path)
 
-    # Create execution context
-    context = engine.create_execution_context()
+# Create execution context
+context = engine.create_execution_context()
 
+# Allocate buffers
+inputs, outputs, binding, stream = allocate_buffers(engine)
 
-    # Allocate buffers
-    inputs, outputs, binding, stream = allocate_buffers(engine)
+# Dummy input data
+input_data = np.random.randn(1, 784).astype(np.float32)
 
-    # Dummy input data
-    input_data = np.random.randn(1, 784).astype(np.float32)
+# Transfer input data to host memory
+np.copyto(inputs[0].host, input_data.ravel())
 
-    # Transfer input data to host memory
-    np.copyto(inputs[0].host, input_data.ravel())
+# Run inference
+output_data = do_inference(context, bindings, inputs, outputs, stream)
+print("Inference output:", output_data)
 
-    # Run inference
-    output_data = do_inference(context, bindings, inputs, outputs, stream)
-    print("Inference output:", output_data)
-
-    # Free allocated memory
-    free_buffers(inputs, outputs, stream)
-
-
-if __name__ == '__main__':
-    main()
+# Free allocated memory
+free_buffers(inputs, outputs, stream)
 ```
 ### Dynamic shapes
 
@@ -617,4 +611,7 @@ output_data = do_inference_v2(context, bindings, inputs, outputs, stream)
 
 # Reshape the output to desire shape and convert to torch 
 output = torch.from_numpy(output_data[0].reshape(input_data.shape[0], 10))
+
+# Free allocated memory
+free_buffers(inputs, outputs, stream)
 ```
