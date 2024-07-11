@@ -30,35 +30,6 @@ When working with TensorRT, understanding the differences between static and dyn
 
 **Note**: Working with different batch sizes required dynamic shapes.
 
-### Static Shapes
-
-Static shapes refer to input and output dimensions that are fixed and known at compile time. This means the shapes do not change during the inference process. Using static shapes allows TensorRT to perform optimizations that can lead to faster inference times because the engine can make assumptions about the tensor sizes.
-
-#### Advantages of Static Shapes
-
-- **Optimization**: TensorRT can apply more aggressive optimizations since the input dimensions are fixed.
-- **Performance**: Inference can be faster due to the reduced overhead of managing variable tensor sizes.
-- **Simplicity**: Easier to implement as there are no variations in input/output sizes to handle.
-
-#### Disadvantages of Static Shapes
-
-- **Flexibility**: Lack of flexibility to handle inputs of varying sizes without recompiling the engine.
-- **Scalability**: Not suitable for applications where input dimensions change frequently.
-
-### Dynamic Shapes
-
-Dynamic shapes, on the other hand, refer to input and output dimensions that can vary at runtime. This flexibility allows a single TensorRT engine to handle inputs of different sizes, making it more versatile for applications that process data with varying dimensions.
-
-#### Advantages of Dynamic Shapes
-
-- **Flexibility**: Can handle inputs of varying sizes, making it suitable for a wider range of applications.
-- **Scalability**: More scalable for different deployment scenarios where input sizes are not known in advance.
-
-#### Disadvantages of Dynamic Shapes
-
-- **Performance Overhead**: Potentially slower inference times due to the overhead of managing dynamic dimensions.
-- **Complexity**: More complex to implement and manage, as the shapes need to be explicitly handled and specified during engine creation and inference.
-
 ### Choosing Between Static and Dynamic Shapes
 
 The choice between static and dynamic shapes depends on the specific requirements of your application:
