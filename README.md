@@ -615,3 +615,6 @@ output = torch.from_numpy(output_data[0].reshape(input_data.shape[0], 10))
 # Free allocated memory
 free_buffers(inputs, outputs, stream)
 ```
+## Acknowledgements
+[Nvidia tensorRT documentation](#https://developer.nvidia.com/tensorrt), [Inferece example in nvidia repo](#https://github.com/d246810g2000/tensorrt/blob/main/common.py)
+
