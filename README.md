@@ -1,6 +1,6 @@
 # SimpleMLP-TensorRT
 
-A comprehensive guide and tutorial on using TensorRT for accelerating a simple Multi-Layer Perceptron (MLP). This repository includes step-by-step instructions, code examples, and explanations to help you get started with TensorRT for nueral network models.
+A Simple guide and tutorial on using TensorRT for accelerating a simple Multi-Layer Perceptron (MLP). This repository includes step-by-step instructions, code examples, and explanations to help you get started with TensorRT for nueral network models.
 
 **TensorRT Version**: Ensure you have TensorRT **version 8.6** or later installed, as TensorRT is compatible across versions from 8.6 onwards.
 
